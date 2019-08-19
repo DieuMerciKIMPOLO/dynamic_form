@@ -1,27 +1,46 @@
 var errors={
 
 }
-var form_date=[]
-const handleChange=(classe,produit, value)=>{
-
-    form_date=[...form_date.filter(obj=>obj.classe!==classe || obj.produit!==produit), {
-      classe:classe,
-      produit:produit,
-      value:parseInt(value)  
-    }]
-    console.log(form_date)    
-}
+var form_data=[]
+const getTotal=(classe)=>{
+    let total=0;
+    form_data.map((item)=>{
+        if(item.classe===classe){
+            return total+=item.value
+        }
+    });
+    return total
+  }
 const getErros=(item)=>{
     
-    return !errors[item.id]?`La quantite minimal n'est pas respecte pour cette classe de produit ${item.classe}`:``
+    return getTotal(item.classe)<parseInt(item.minimum)?`La quantite minimal n'est pas respecte pour cette classe de produit ${item.classe}`:``
 }
+const handleChange=(classe,produit, value, minimum)=>{
+
+    form_data=[...form_data.filter(obj=>obj.classe!==classe || obj.produit!==produit), {
+      classe:classe,
+      produit:produit,
+      value:isNaN(parseInt(value))?0:parseInt(value),
+      minimum:parseInt(minimum)
+    }]
+    //$(`#${classe}`).html(getErros({classe:classe, produit:produit, minimum:parseInt(minimum)}))
+    console.log(form_data)    
+}
+
 const handleSubmit=()=>{
-   alert("Okay! it's done!!!!")
-}
+    //$(`#Sumsung3`).html(getErros({classe:"Sumsung3", produit:'produit', minimum:parseInt(12)}))
+    //e.preventDefault();
+    const data=JSON.parse(localStorage.getItem('data'));
+    data.map((item)=>{
+     $(`#${item.classe}`).html(getErros(item))
+    })
+   }
+
 $( document ).ready(function() {
     /*
     Les donnees recuperees de la BD via ajax doivent etre structurees de de cette facon
     */
+
     var data =[
         {
             id:1,
@@ -90,6 +109,7 @@ $( document ).ready(function() {
             ]
         }
     ];
+    localStorage.setItem('data',JSON.stringify(data))
     var section="" // Permet de generer une section, une classe
     // cette boucle permet de parcourir toutes les classes
     data.map((item,Key)=>{
@@ -104,22 +124,20 @@ $( document ).ready(function() {
             sect_1+=`
             <div class="form-group">
             <label for="">${elt.nom}</label>
-            <input type="text" name=${item.classe} onkeyup="handleChange(this.name,this.id,this.value)" id=${elt.nom} class="form-control" placeholder=${elt.nom} aria-describedby="helpId">
+            <input type=${item.minimum} name=${item.classe} onkeyup="handleChange(this.name,this.id,this.value,this.type)" id=${elt.nom} class="form-control" placeholder=${elt.nom} aria-describedby="helpId">
             <small id="helpId" class="text-muted"></small>
           </div>
             `
         })
         sect_1+=`
-        <small id="helpId" style="color:red" class="text-muted">${getErros(item)}</small>
+        <small id=${item.classe} style="color:red" class="text-muted"></small>
         </div>
         </div>
         `;
         section+=sect_1;
     })
     section+=`
-    <button class="btn btn-primary" onclick="handleSubmit()">
-          Soumettre <span class="badge badge-primary"></span>
-    </button>
+    <button onclick="handleSubmit()" type="button" value="send" class="btn btn-primary">Submit</button>
     `
     $("#form").html(section);
     console.log(section)
