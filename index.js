@@ -12,12 +12,16 @@ const handleChange=(classe,produit, value)=>{
     console.log(form_date)    
 }
 const getErros=(item)=>{
+    
     return !errors[item.id]?`La quantite minimal n'est pas respecte pour cette classe de produit ${item.classe}`:``
 }
 const handleSubmit=()=>{
    alert("Okay! it's done!!!!")
 }
 $( document ).ready(function() {
+    /*
+    Les donnees recuperees de la BD via ajax doivent etre structurees de de cette facon
+    */
     var data =[
         {
             id:1,
@@ -86,13 +90,17 @@ $( document ).ready(function() {
             ]
         }
     ];
-    var section=""
+    var section="" // Permet de generer une section, une classe
+    // cette boucle permet de parcourir toutes les classes
     data.map((item,Key)=>{
         var sect_1=`<div class='row section'> 
                         <b class='col-lg-12'>${item.classe}</b>
                         <div class="col-md-12">
                    `;
+        //Cette boucle permet de parcourir les produit de la classe courante
         item.produits.map((elt,key)=>{
+            //Ici nous construisons pour chaque produit un champs et la fonction handleChange nous permet 
+            //de detecter la saisie dans les champs
             sect_1+=`
             <div class="form-group">
             <label for="">${elt.nom}</label>
